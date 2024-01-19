@@ -1,0 +1,147 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Room {
+    private int roomNumber;
+    private boolean isAvailable;
+
+    public Room(int roomNumber) {
+        this.roomNumber = roomNumber;
+        this.isAvailable = true;
+    }
+
+    public int getRoomNumber() {
+        return roomNumber;
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void bookRoom() {
+        isAvailable = false;
+    }
+
+    public void releaseRoom() {
+        isAvailable = true;
+    }
+}
+
+class Booking {
+    private String Name;
+    private Room roomBooked;
+
+    public Booking(String Name, Room roomBooked) {
+        this.Name = Name;
+        this.roomBooked = roomBooked;
+        roomBooked.bookRoom();
+    }
+
+    public String getGuestName() {
+        return Name;
+    }
+
+    public Room getBookedRoom() {
+        return roomBooked;
+    }
+}
+
+class Hotel {
+    private List<Room> rooms = new ArrayList<>();
+    private List<Booking> bookings = new ArrayList<>();
+
+    public Hotel(int numRooms) {
+        for (int i = 1; i <= numRooms; i++) {
+            rooms.add(new Room(i));
+        }
+    }
+
+    public List<Room> getAvailableRooms() {
+        List<Room> availableRooms = new ArrayList<>();
+        for (Room room : rooms) {
+            if (room.isAvailable()) {
+                availableRooms.add(room);
+            }
+        }
+        return availableRooms;
+    }
+
+    public void makeReservation(String Name, Room room) {
+        Booking booking = new Booking(Name, room);
+        bookings.add(booking);
+    }
+
+    public void releaseRoom(Room room) {
+        room.releaseRoom();
+    }
+
+    public List<Booking> getBookings() {
+        return bookings;
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner s = new Scanner(System.in);
+
+        System.out.println("Welcome!");
+
+        
+        Hotel hotel = new Hotel(10);
+
+        boolean continueReserving = true;
+
+        do {
+            
+            System.out.println("\nAvailable Rooms:");
+            List<Room> availableRooms = hotel.getAvailableRooms();
+            for (Room room : availableRooms) {
+                System.out.println("Room " + room.getRoomNumber());
+            }
+
+            
+            System.out.print("\nEnter your name: ");
+            String Name = s.nextLine();
+            System.out.print("Enter the room number you want to book: ");
+            int roomNumber = s.nextInt();
+            s.nextLine(); 
+
+            Room selectedRoom = findRoomByNumber(availableRooms, roomNumber);
+
+            if (selectedRoom != null) {
+                hotel.makeReservation(Name, selectedRoom);
+                System.out.println("Reservation successful!");
+            } else {
+                System.out.println("Room not available.");
+            }
+
+            
+            System.out.print("\nDo you want to make another reservation? (yes/no): ");
+            String response = s.nextLine().toLowerCase();
+            continueReserving = response.equals("yes");
+
+        } while (continueReserving);
+
+        
+        System.out.println("\nBooking Details:");
+        List<Booking> bookings = hotel.getBookings();
+        for (Booking booking : bookings) {
+            System.out.println("Guest: " + booking.getGuestName() +
+                    ", Room: " + booking.getBookedRoom().getRoomNumber());
+        }
+
+        
+        s.close();
+    }
+
+    private static Room findRoomByNumber(List<Room> rooms, int roomNumber) {
+        for (Room room : rooms) {
+            if (room.getRoomNumber() == roomNumber) {
+                return room;
+            }
+        }
+        return null;
+    }
+}
